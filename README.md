@@ -1,6 +1,8 @@
 # SimPLer
 
-Implementation of an interpreter for the SimPL and Core OCaml programming languages as the final exercise from the book [OCaml Programming: Correct + Efficient + Beautiful](https://cs3110.github.io/textbook/ocaml_programming.pdf). Although these toy languages are just basic calculators in some way (given that only expressions are supported), a whole lot of syntactic and semantic rules present in the [Lambda Calculus](https://plato.stanford.edu/entries/church-turing/) are provided by them, such as substitution, partial application and pattern matching.
+Implementation of an interpreter for the SimPL and Core OCaml programming languages as the final exercise from the book [OCaml Programming: Correct + Efficient + Beautiful](https://cs3110.github.io/textbook/ocaml_programming.pdf). 
+
+Although these toy languages are just basic calculators in some way (given that only expressions are supported), a whole lot of syntactic and semantic rules present in the [Lambda Calculus](https://plato.stanford.edu/entries/church-turing/) are provided by them, such as substitution and partial application.
 
 ## Syntax
 
