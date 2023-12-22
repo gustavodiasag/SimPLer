@@ -33,7 +33,7 @@ prog:
   | e = expr; EOF { e }
 
 expr:
-  | i = INT { Int i}
+  | i = INT { Int i }
   | x = ID { Var x }
   | TRUE { Bool true }
   | FALSE { Bool false }
