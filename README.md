@@ -2,7 +2,7 @@
 
 Implementation of an interpreter for the SimPL and Core OCaml programming languages as the final exercise from the book [OCaml Programming: Correct + Efficient + Beautiful](https://cs3110.github.io/textbook/ocaml_programming.pdf). 
 
-Although these toy languages are just basic calculators in some way (given that only expressions are supported), a whole lot of syntactic and semantic rules present in the [Lambda Calculus](https://plato.stanford.edu/entries/church-turing/) are provided by them, such as substitution and partial application.
+Although these toy languages are just basic calculators in some way (given that only expressions are supported), a whole lot of ideas present in [lambda calculus theory](https://plato.stanford.edu/entries/church-turing/) are provided by them, such as substitution and partial application. Besides that, the languages are defined with syntactic and semantic rules very similar to those of OCaml, with features such as pattern matching, lack of mutability and side effects and tuples. 
 
 ## Syntax
 
@@ -60,6 +60,10 @@ v ::= fun x -> e | i | b | (v1, v2) | Left v | Right v
 Both the lexer and the parser for the language are not developed from scratch. Instead, the implementation relies on tools provided by the libraries [ocamllex](https://v2.ocaml.org/manual/lexyacc.html), responsible for the generation of lexical analyzers, and [Menhir](https://gallium.inria.fr/~fpottier/menhir/manual.pdf), responsible for the generation of parsers. 
 
 The details for the lexer definition (i.e., identifiers and rules) are found in [lexer.mll](lib/lexer.mll), and the details for the grammar definition (i.e., symbols and production rules) are found in [parser.mly](lib/parser.mly).
+
+### Evaluation
+
+
 
 # License
 
