@@ -57,13 +57,19 @@ v ::= fun x -> e | i | b | (v1, v2) | Left v | Right v
 
 ### Lexing and Parsing
 
-Both the lexer and the parser for the language are not developed from scratch. Instead, the implementation relies on tools provided by the libraries [ocamllex](https://v2.ocaml.org/manual/lexyacc.html), responsible for the generation of lexical analyzers, and [Menhir](https://gallium.inria.fr/~fpottier/menhir/manual.pdf), responsible for the generation of parsers. 
+Neither the lexer nor the parser for the language are developed from scratch. Instead, the implementation relies on tools provided by the libraries [ocamllex](https://v2.ocaml.org/manual/lexyacc.html), responsible for the generation of lexical analyzers, and [Menhir](https://gallium.inria.fr/~fpottier/menhir/manual.pdf), responsible for the generation of parsers. 
 
 The details for the lexer definition (i.e., identifiers and rules) are found in [lexer.mll](lib/lexer.mll), and the details for the grammar definition (i.e., symbols and production rules) are found in [parser.mly](lib/parser.mly).
 
 ### Evaluation
 
+The process of simplifying the languages' [Abstract Syntax Tree](lib/ast.ml) down to a single value is defined through a mathematical relation whose style is known as **operational semantics**. More specifically, these semantics are divided in small step and big step semantics, where:
 
+- **Small step** semantics represent execution in terms of individual small steps, or how a program takes one single step of execution.
+
+- **Big step** semantics represent execution in terms of a big step from an expression directly to a value, abstracting away all the details of single steps.
+
+Both styles are provided by the interpreter for the purpose of choosing the one best suited for certain circumstances. The small-step semantics tend to be easier to work when it comes to modeling complicated language features, and the big-step semantics tend to be more similar to how an interpreter would actually be implemented.
 
 # License
 
