@@ -24,7 +24,7 @@ Both styles are provided by the interpreter for the purpose of choosing the one 
 
 ## Substitution
 
-The implementation of variables consider the **substitution model** of evaluation, where the value of a variable is substituted for its name throughout the scope of that name, as soon as a binding of the variable is found (i.e., the variable is shadowed).
+The implementation of variables consider the **substitution model** of evaluation, where the value of a variable is substituted for its name throughout the scope of that name, as soon as a binding of the variable is found.
 
 A notation `e'{e/x}` is used to determine the expression `e'` with `e` substituted for `x`. So anywhere `x` appears in `e'`, it should be replaced with `e`, and this model is defined for each of the languages' constructs:
 
