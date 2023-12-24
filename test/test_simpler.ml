@@ -1,19 +1,18 @@
 open OUnit2
 open Simpler
 open Interpreter
-open Ast
 
 (** [make_i n i s] makes an OUnit test named [n] that expects
     [s] to evalute to [Int i]. *)
 let make_i n i s =
-  [n >:: (fun _ -> assert_equal (Int i) (interpret_small s));
-   n >:: (fun _ -> assert_equal (Int i) (interpret_big s))]
+  [n >:: (fun _ -> assert_equal (Ast.Int i) (interpret_small s));
+   n >:: (fun _ -> assert_equal (Ast.Int i) (interpret_big s))]
 
 (** [make_b n b s] makes an OUnit test named [n] that expects
     [s] to evalute to [Bool b]. *)
 let make_b n b s =
-  [n >:: (fun _ -> assert_equal (Bool b) (interpret_small s));
-   n >:: (fun _ -> assert_equal (Bool b) (interpret_big s))]
+  [n >:: (fun _ -> assert_equal (Ast.Bool b) (interpret_small s));
+   n >:: (fun _ -> assert_equal (Ast.Bool b) (interpret_big s))]
 
 let tests = [
   make_i "int" 22 "22";
