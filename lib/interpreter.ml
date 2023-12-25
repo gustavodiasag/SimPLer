@@ -1,5 +1,12 @@
 open Ast
 
+(** [parse s] parses [s] into an AST. *)
+let parse (s : string) =
+  let lexbuf = Lexing.from_string s in
+  let ast = Parser.prog Lexer.read lexbuf in
+  ast
+;;
+
 (** [is_value e] is whether [e] is a value. *)
 let is_value (e : expr) : bool =
   match e with
@@ -80,12 +87,6 @@ and eval_if e1 e2 e3 =
   | Bool true -> eval_big e2
   | Bool false -> eval_big e3
   | _ -> failwith "Guard of 'if' must have type bool"
-;;
-
-(** [parse s] parses [s] into an AST. *)
-let parse s =
-  let lexbuf = Lexing.from_string s in
-  Parser.prog Lexer.read lexbuf
 ;;
 
 let interpret_small s =
