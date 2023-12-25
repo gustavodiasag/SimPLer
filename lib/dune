@@ -1,12 +1,12 @@
-(menhir
- (modules parser))
-
-(ocamllex lexer)
-
 (library
  (name simpler)
  (libraries core)
  (preprocess
  (pps
-   ppx_deriving.show
-   ppx_deriving.ord)))
+  ppx_deriving.show
+  ppx_deriving.ord)))
+
+(menhir
+ (modules parser))
+
+(ocamllex lexer)
