@@ -77,17 +77,18 @@ Both styles are provided by the interpreter for the purpose of choosing the one 
 
 ## Substitution
 
-The implementation of variables consider the **substitution model** of evaluation, where the value of a variable is substituted for its name throughout the scope of that name, as soon as a binding of the variable is found.
+The implementation of variables use the **substitution model** of evaluation, where the value of a variable is substituted for its name throughout the scope of that name, as soon as a binding of the variable is found.
 
-A notation `e'{e/x}` is used to determine the expression `e'` with `e` substituted for `x`. So anywhere `x` appears in `e'`, it should be replaced with `e`, and this model is defined for each of the languages' constructs:
+For SimPL (which is composed of expressions), the notation `e'{e/x}` is used to determine the expression `e'` with `e` substituted for `x`. So anywhere `x` appears in `e'`, it should be replaced with `e`. For Core OCaml, the same logic is applied, but since it supports a value abstraction, the notation changes slightly to `e{v/x}`. This model is defined for each of the languages' constructs, but given that Core OCaml is a superset of SimPL, only its rules are specified:
 
 ### Constants
 
 Variables cannot appear in them (e.g., `x` cannot syntactically occur in `42`), so substitution leaves constants unchanged.
 
 ```
-i{e/x} = i
-b{e/x} = b
+i{v/x} = i
+
+b{v/x} = b
 ```
 
 ### Operators and conditionals
@@ -95,8 +96,9 @@ b{e/x} = b
 All that substitution does is recurse inside the subexpressions.
 
 ```
-(e1 bop e2){e/x} = e1{e/x} bop e2{e/x}
-(if e1 then e2 else e3){e/x} = if e1{e/x} then e2{e/x} else e3{e/x}
+(e1 + e2){v/x} = e1{v/x} + e2{v/x}
+
+(if e1 then e2 else e3){v/x} = if e1{v/x} then e2{v/x} else e3{v/x}
 ```
 
 ### Variables
@@ -104,18 +106,68 @@ All that substitution does is recurse inside the subexpressions.
 There are two possibilities, either the variable to be substituted is found or not, in which case the substitution must not happen
 
 ```
-x{e/x} = e
-y{e/x} = y
+x{v/x} = v
+
+y{v/x} = y
 ```
 
 ### Let expressions
 
-Two cases are also possible, depending on the name of the bound variable. If a shadowed name has been reached, substitution must stop in order to prioritize the most recent binding, so it is only applied to the first expression.
+Two cases are also possible, depending on the name of the bound variable. If a shadowed name has been reached, substitution must stop in order to prioritize the most recent binding, so it is only applied to the first expression. On the contrary, substitution carefully recurses inside both expressions, avoiding [capturing any variables](NOTES.md/#capture-avoiding-substitution-1139).
 
 ```
-(let x = e1 in e2){e/x} = let x = e1{e/x} in e2
-(let y = e1 in e2){e/x} = let y = e1{e/x} in e2{e/x}
+(let x = e1 in e2){v/x} = let x = e1{v/x} in e2
+
+(let y = e1 in e2){v/x} = let y = e1{v/x} in e2{v/x}
+    if y not in FV(v)
 ```
+
+### Anonymous functions
+
+Fundamentally the same as for "let" expressions.
+
+```
+(fun x -> e'){v/x} = (fun x -> e')
+
+(fun y -> e'){v/x} = (fun y -> e'{v/x})
+    if y not in FV(v)
+```
+
+### Tuples and Variants
+
+```
+(e1, e2){v/x} = (e1{v/x}, e2{v/x})
+
+(fst e){v/x} = fst (e{v/x})
+
+(snd e){v/x} = snd (e{v/x})
+
+(Left e){v/x} = Left (e{v/x})
+
+(Right e){v/x} = Right (e{v/x})
+```
+
+### Match expressions
+
+There is also the need to ensure capture-avoidance.
+
+```
+(match e with Left x1 -> e1 | Right x2 -> e2){v/x}
+= match e{v/x} with Left x1 -> e1{v/x} | Right x2 -> e2{v/x}
+    if ({x1,x2} intersect FV(v)) = {}
+
+(match e with Left x -> e1 | Right x2 -> e2){v/x}
+= match e{v/x} with Left x -> e1 | Right x2 -> e2{v/x}
+    if ({x2} intersect FV(v)) = {}
+
+(match e with Left x1 -> e1 | Right x -> e2){v/x}
+= match e{v/x} with Left x1 -> e1{v/x} | Right x -> e2
+    if ({x1} intersect FV(v)) = {}
+
+(match e with Left x -> e1 | Right x -> e2){v/x}
+= match e{v/x} with Left x -> e1 | Right x -> e2
+```
+
 
 # License
 
