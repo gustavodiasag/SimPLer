@@ -1,5 +1,11 @@
 %{
 open Ast
+
+let rec make_apply e = function
+  | [] -> failwith "Precondition violated"
+  | [e'] -> App (e, e')
+  | h :: ((_ :: _) as t) -> make_apply (App (e, h)) t
+;;
 %}
 
 %token <int> INT
@@ -17,6 +23,8 @@ open Ast
 %token IF
 %token THEN
 %token ELSE
+%token FUN
+%token ARROW
 %token EOF
 
 %nonassoc IN
@@ -31,10 +39,12 @@ open Ast
 
 prog:
   | e = expr; EOF { e }
+  ;
 
 expr:
+  | e = simpl_expr { e }
+  | e = simpl_expr; es = simpl_expr+ { make_apply e es }
   | i = INT { Int i }
-  | x = ID { Var x }
   | TRUE { Bool true }
   | FALSE { Bool false }
   | e1 = expr; LEQ; e2 = expr { Binop (Leq, e1, e2) }
@@ -42,4 +52,10 @@ expr:
   | e1 = expr; PLUS; e2 = expr { Binop (Add, e1, e2) }
   | LET; x = ID; EQUALS; e1 = expr; IN; e2 = expr { Let (x, e1, e2) }
   | IF; e1 = expr; THEN; e2 = expr; ELSE; e3 = expr { If (e1, e2, e3) }
+  | FUN; x = ID; ARROW; e = expr { Fun (x, e) }
+  ;
+
+simpl_expr:
+  | x = ID { Var x }
   | LPAREN; e = expr; RPAREN { e }
+  ;
