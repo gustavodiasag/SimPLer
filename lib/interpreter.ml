@@ -1,5 +1,8 @@
 open Ast
 
+module VarSet = Set.Make(String)
+open VarSet
+
 let parse s =
   let lexbuf = Lexing.from_string s in
   let ast = Parser.prog Lexer.read lexbuf in
@@ -12,9 +15,6 @@ let is_value (e : expr) : bool =
   | Int _ | Bool _ -> true
   | _ -> false
 ;;
-
-module VarSet = Set.Make(String)
-open VarSet
 
 (** [fv e] is a set-like list of the free variables of [e]. *)
 let rec fv (e : expr) : VarSet.t =
@@ -68,7 +68,7 @@ let rec step (e : expr) : expr =
   | If (Int _, _, _) -> failwith "Guard of 'if' must have type bool"
   | If (e1, e2, e3) -> If (step e1, e2, e3)
   | App (Fun (x, e1), e2) when is_value e2 -> sub e1 e2 x
-  | App (Fun (x, e1), e2) -> App (Fun (x, e1), step e2)
+  | App (Fun _ as f, e2) -> App (f, step e2)
   | App (e1, e2) -> App (step e1, e2)
 
 (** [step_bop bop v1 v2] implements the primitive operation [v1 bop v2].
@@ -131,4 +131,3 @@ let interpret_big s =
   let e = parse s in
   eval_big e
 ;;
-
