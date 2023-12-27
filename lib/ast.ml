@@ -7,6 +7,9 @@ type expr =
   | If of expr * expr * expr
   | Fun of string * expr
   | App of expr * expr
+  | Pair of expr * expr
+  | Fst of expr
+  | Snd of expr
 
 and binop =
   | Add
