@@ -1,6 +1,6 @@
 open Ast
 
-module VarSet = Set.Make(String)
+module VarSet = Set.Make (String)
 open VarSet
 
 let parse s =
@@ -35,19 +35,15 @@ let rec sub e v x =
   | Bool _ | Int _ -> e
   | Binop (bop, e1, e2) -> Binop (bop, sub e1 v x, sub e2 v x)
   | Let (y, e1, e2) ->
-    begin
-      let e1' = sub e1 v x in
-      if x = y then Let (y, e1', e2)
-      else Let (y, e1', sub e2 v x)
-    end
-  | If (e1, e2, e3) ->
-    If (sub e1 v x, sub e2 v x, sub e3 v x)
+    let e1' = sub e1 v x in
+    if x = y then Let (y, e1', e2) else Let (y, e1', sub e2 v x)
+  | If (e1, e2, e3) -> If (sub e1 v x, sub e2 v x, sub e3 v x)
   | Fun (y, e') ->
-    begin
-      if x = y then e
-      else if not (mem y (fv v)) then Fun (y, sub e' v x)
-      else Fun (y, e')
-    end
+    if x = y
+    then e
+    else if not (mem y (fv v))
+    then Fun (y, sub e' v x)
+    else Fun (y, e')
   | App (e1, e2) -> App (sub e1 v x, sub e2 v x)
 ;;
 
@@ -57,8 +53,7 @@ let rec step (e : expr) : expr =
   match e with
   | Int _ | Bool _ | Fun _ -> failwith "Does not step"
   | Var _ -> failwith "Unbound variable"
-  | Binop (bop, e1, e2) when is_value e1 && is_value e2 ->
-      step_bop bop e1 e2
+  | Binop (bop, e1, e2) when is_value e1 && is_value e2 -> step_bop bop e1 e2
   | Binop (bop, e1, e2) when is_value e1 -> Binop (bop, e1, step e2)
   | Binop (bop, e1, e2) -> Binop (bop, step e1, e2)
   | Let (x, e1, e2) when is_value e1 -> sub e2 e1 x
@@ -68,7 +63,7 @@ let rec step (e : expr) : expr =
   | If (Int _, _, _) -> failwith "Guard of 'if' must have type bool"
   | If (e1, e2, e3) -> If (step e1, e2, e3)
   | App (Fun (x, e1), e2) when is_value e2 -> sub e1 e2 x
-  | App (Fun _ as f, e2) -> App (f, step e2)
+  | App ((Fun _ as f), e2) -> App (f, step e2)
   | App (e1, e2) -> App (step e1, e2)
 
 (** [step_bop bop v1 v2] implements the primitive operation [v1 bop v2].
