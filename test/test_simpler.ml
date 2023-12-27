@@ -30,7 +30,7 @@ let test_binop =
 ; test_int_expr "mult" 22 ~s:"2 * 11"
 ; test_int_expr "mult_prec" 22 ~s:"2 + 2 * 10"
 ; test_int_expr "mult_prec2" 14 ~s:"2 * 2 + 10"
-; test_int_expr "mult_assoc" 20 ~s:"2 * 2 * 10"
+; test_int_expr "mult_assoc" 40 ~s:"2 * 2 * 10"
 ; test_bool_expr "leq" true ~s:"1 <= 1"
 ]
 
