@@ -7,9 +7,9 @@ type expr =
   | If of expr * expr * expr
   | Fun of string * expr
   | App of expr * expr
-  
+
 and binop =
   | Add
   | Mult
   | Leq
-[@@deriving eq]
+[@@deriving show, eq]
