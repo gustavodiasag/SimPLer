@@ -1,35 +1,75 @@
 open OUnit2
 open Simpler
-open Interpreter
 
-(** [make_i n i s] makes an OUnit test named [n] that expects
-    [s] to evalute to [Int i]. *)
-let make_i n i s =
-  [n >:: (fun _ -> assert_equal (Ast.Int i) (interpret_small s));
-   n >:: (fun _ -> assert_equal (Ast.Int i) (interpret_big s))]
+let interpret_small = Simpler.Interpreter.interpret_small
+let interpret_big = Simpler.Interpreter.interpret_big
 
-(** [make_b n b s] makes an OUnit test named [n] that expects
-    [s] to evalute to [Bool b]. *)
-let make_b n b s =
-  [n >:: (fun _ -> assert_equal (Ast.Bool b) (interpret_small s));
-   n >:: (fun _ -> assert_equal (Ast.Bool b) (interpret_big s))]
+let test_int_expr name expr ~s =
+  let open Ast in
+  name >:: (fun _ -> 
+    assert_equal (Int expr) (interpret_small s);
+    assert_equal (Int expr) (interpret_big s))
+;;  
 
-let tests = [
-  make_i "int" 22 "22";
-  make_i "add" 22 "11 + 11";
-  make_i "adds" 22 "(10 + 1) + (5 + 6)";
-  make_i "let" 22 "let x = 22 in x";
-  make_i "lets" 22 "let x = 0 in let x = 22 in x";
-  make_i "mul1" 22 "2 * 11";
-  make_i "mul2" 22 "2 + 2 * 10";
-  make_i "mul3" 14 "2 * 2 + 10";
-  make_i "mul4" 40 "2 * 2 * 10";
-  make_i "if1" 22 "if true then 22 else 0";
-  make_b "true" true "true";
-  make_b "leq" true "1 <= 1";
-  make_i "if2" 22 "if 1 + 2 <= 3 + 4 then 22 else 0";
-  make_i "if3" 22 "if 1 + 2 <= 3 * 4 then let x = 22 in x else 0";
-  make_i "letif" 22 "let x = 1 + 2 <= 3 * 4 in if x then 22 else 0";
+let test_bool_expr name expr ~s =
+  let open Ast in
+  name >:: (fun _ -> 
+    assert_equal (Bool expr) (interpret_small s);
+    assert_equal (Bool expr) (interpret_big s))
+;;
+
+let test_value =
+[ test_int_expr "int" 22 ~s:"22" 
+; test_bool_expr "true" true ~s:"true"
 ]
 
-let _ = run_test_tt_main ("suite" >::: List.flatten tests)
+let test_binop =
+[ test_int_expr "add" 22 ~s:"11 + 11"
+; test_int_expr "add_prec" 22 ~s:"(10 + 1) + (5 + 6)"
+; test_int_expr "add_assoc" 22 ~s:"10 + (1 + (5 + 6))"
+; test_int_expr "mult" 22 ~s:"2 * 11"
+; test_int_expr "mult_prec" 22 ~s:"2 + 2 * 10"
+; test_int_expr "mult_prec2" 14 ~s:"2 * 2 + 10"
+; test_int_expr "mult_assoc" 20 ~s:"2 * 2 * 10"
+; test_bool_expr "leq" true ~s:"1 <= 1"
+]
+
+let test_cond =
+[ test_int_expr "if" 22 ~s:"if true then 22 else 0"
+; test_int_expr "if_binop" 22 ~s:
+  "
+    if 1 + 2 <= 3 + 4 then 22
+    else 0
+  "
+; test_int_expr "if_let" 22 ~s:
+  "
+    if 1 + 2 <= 3 * 4
+    then
+      let x = 22 in
+      x
+    else 0
+  "
+]
+
+let test_let =
+[ test_int_expr "let_id" 22 ~s:"let x = 22 in x"
+; test_int_expr "lets" 22 ~s:
+  "
+    let x = 0 in
+      let x = 22 in
+      x
+  "
+; test_int_expr "let_if" 22 ~s:
+  "
+    let x = 1 + 2 <= 3 * 4 in
+    if x then 22
+    else 0
+  "
+]
+
+let suite =
+  "suite" >::: List.flatten 
+  [test_value; test_binop; test_cond; test_let]
+;;
+
+let _ = run_test_tt_main suite
