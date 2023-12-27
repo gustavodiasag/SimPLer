@@ -48,7 +48,7 @@ e ::= x
     | if e1 then e2 else e3
     | let x = e1 in e2
 
-bop ::= + | * | < | =
+bop ::= + | * | < | > | = | <= | >= 
 
 x ::= <identifier>
 
