@@ -1,8 +1,3 @@
-type binop =
-  | Add
-  | Mult
-  | Leq
-
 type expr =
   | Var of string
   | Int of int
@@ -12,3 +7,9 @@ type expr =
   | If of expr * expr * expr
   | Fun of string * expr
   | App of expr * expr
+  
+and binop =
+  | Add
+  | Mult
+  | Leq
+[@@deriving eq]

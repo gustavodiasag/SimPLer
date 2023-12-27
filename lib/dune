@@ -2,9 +2,10 @@
  (name simpler)
  (libraries core)
  (preprocess
- (pps
-  ppx_deriving.show
-  ppx_deriving.ord)))
+  (pps
+    ppx_deriving.show
+    ppx_deriving.ord
+    ppx_deriving.eq)))
 
 (menhir
  (modules parser))
