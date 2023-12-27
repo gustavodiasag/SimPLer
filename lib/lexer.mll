@@ -12,23 +12,31 @@ let id = letter+
 (* Rules *)
 rule read =
   parse
+    (* Whitespace *)
     | white { read lexbuf }
-    | "true" { TRUE }
-    | "false" { FALSE }
+    (* Single-character *)
+    | "," { COMMA }
     | "<" { LT }
     | ">" { GT }
     | "*" { TIMES }
     | "+" { PLUS }
     | "(" { LPAREN }
     | ")" { RPAREN }
-    | "let" { LET }
     | "=" { EQ }
+    (* Keywords *)
+    | "let" { LET }
+    | "true" { TRUE }
+    | "false" { FALSE }
     | "in" { IN }
     | "if" { IF }
     | "then" { THEN }
     | "else" { ELSE }
     | "fun" { FUN }
     | "->" { ARROW }
+    | "fst" { FST }
+    | "snd" { SND }
+    (* Literals *)
     | id { ID (Lexing.lexeme lexbuf ) }
     | int { INT (int_of_string (Lexing.lexeme lexbuf)) }
+    (* Eof *)
     | eof { EOF }

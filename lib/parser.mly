@@ -14,6 +14,7 @@ let rec make_apply e = function
 %token <string> ID
 %token TRUE
 %token FALSE
+%token COMMA
 %token LT
 %token GT
 %token TIMES
@@ -28,6 +29,8 @@ let rec make_apply e = function
 %token ELSE
 %token FUN
 %token ARROW
+%token FST
+%token SND
 %token EOF
 
 %nonassoc IN
@@ -61,6 +64,9 @@ expr:
   | LET; x = ID; EQ; e1 = expr; IN; e2 = expr { Let (x, e1, e2) }
   | IF; e1 = expr; THEN; e2 = expr; ELSE; e3 = expr { If (e1, e2, e3) }
   | FUN; x = ID; ARROW; e = expr { Fun (x, e) }
+  | LPAREN; e1 = expr; COMMA; e2 = expr; RPAREN { Pair (e1, e2) }
+  | FST; e = expr { Fst e }
+  | SND; e = expr { Snd e }
   ;
 
 simpl_expr:
