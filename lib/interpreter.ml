@@ -12,7 +12,7 @@ let parse s =
 (** [is_value e] is whether [e] is a value. *)
 let is_value (e : expr) : bool =
   match e with
-  | Int _ | Bool _ -> true
+  | Int _ | Bool _ | Fun _ -> true
   | _ -> false
 ;;
 
@@ -34,16 +34,16 @@ let rec sub e v x =
   | Var y -> if x = y then v else e
   | Bool _ | Int _ -> e
   | Binop (bop, e1, e2) -> Binop (bop, sub e1 v x, sub e2 v x)
-  | Let (y, e1, e2) ->
-    let e1' = sub e1 v x in
-    if x = y then Let (y, e1', e2) else Let (y, e1', sub e2 v x)
+  | Let (y, e1, e2) -> begin
+      let e1' = sub e1 v x in
+      if x = y then Let (y, e1', e2) else Let (y, e1', sub e2 v x)
+    end
   | If (e1, e2, e3) -> If (sub e1 v x, sub e2 v x, sub e3 v x)
-  | Fun (y, e') ->
-    if x = y
-    then e
-    else if not (mem y (fv v))
-    then Fun (y, sub e' v x)
-    else Fun (y, e')
+  | Fun (y, e') as f -> begin
+      if x = y then e
+      else if not (mem y (fv v)) then Fun (y, sub e' v x)
+      else f
+    end
   | App (e1, e2) -> App (sub e1 v x, sub e2 v x)
 ;;
 
@@ -72,7 +72,12 @@ and step_bop bop e1 e2 =
   match bop, e1, e2 with
   | Add, Int a, Int b -> Int (a + b)
   | Mult, Int a, Int b -> Int (a * b)
+  | Lt, Int a, Int b -> Bool (a < b)
+  | Gt, Int a, Int b -> Bool (a > b)
+  | Eq, Int a, Int b -> Bool (a = b)
+  | Eq, Bool a, Bool b -> Bool (a = b)
   | Leq, Int a, Int b -> Bool (a <= b)
+  | Geq, Int a, Int b -> Bool (a >= b)
   | _ -> failwith "Operator and operand type mismatch"
 ;;
 
@@ -99,7 +104,12 @@ and eval_bop bop e1 e2 =
   match bop, eval_big e1, eval_big e2 with
   | Add, Int a, Int b -> Int (a + b)
   | Mult, Int a, Int b -> Int (a * b)
+  | Lt, Int a, Int b -> Bool (a < b)
+  | Gt, Int a, Int b -> Bool (a > b)
+  | Eq, Int a, Int b -> Bool (a = b)
+  | Eq, Bool a, Bool b -> Bool (a = b)
   | Leq, Int a, Int b -> Bool (a <= b)
+  | Geq, Int a, Int b -> Bool (a >= b)
   | _ -> failwith "Operator and operand type mismatch"
 
 (** [eval_if e1 e2 e3] is the [e] such that [if e1 then e2 else e3 = e]. *)

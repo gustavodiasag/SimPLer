@@ -11,5 +11,9 @@ type expr =
 and binop =
   | Add
   | Mult
+  | Lt
+  | Gt
+  | Eq
+  | Geq
   | Leq
 [@@deriving show, eq]

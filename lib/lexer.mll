@@ -15,13 +15,14 @@ rule read =
     | white { read lexbuf }
     | "true" { TRUE }
     | "false" { FALSE }
-    | "<=" { LEQ }
+    | "<" { LT }
+    | ">" { GT }
     | "*" { TIMES }
     | "+" { PLUS }
     | "(" { LPAREN }
     | ")" { RPAREN }
     | "let" { LET }
-    | "=" { EQUALS }
+    | "=" { EQ }
     | "in" { IN }
     | "if" { IF }
     | "then" { THEN }
