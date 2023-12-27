@@ -10,9 +10,10 @@ let parse s =
 ;;
 
 (** [is_value e] is whether [e] is a value. *)
-let is_value (e : expr) : bool =
+let rec is_value (e : expr) : bool =
   match e with
   | Int _ | Bool _ | Fun _ -> true
+  | Pair (e1, e2) when is_value e1 && is_value e2 -> true
   | _ -> false
 ;;
 
@@ -25,7 +26,8 @@ let rec fv (e : expr) : VarSet.t =
   | Let (x, e1, e2) -> union (fv e1) (diff (fv e2) (singleton x))
   | If (e1, e2, e3) -> union (union (fv e1) (fv e2)) (fv e3)
   | Fun (x, e) -> diff (fv e) (singleton x)
-  | App (e1, e2) -> union (fv e1) (fv e2)
+  | App (e1, e2) | Pair (e1, e2) -> union (fv e1) (fv e2)
+  | Fst e | Snd e -> (fv e)
 ;;
 
 (** [sub e v x] is [e] with [v] substituted for [x], that is, [e{v/x}]. *)
@@ -45,6 +47,9 @@ let rec sub e v x =
       else f
     end
   | App (e1, e2) -> App (sub e1 v x, sub e2 v x)
+  | Pair (e1, e2) -> Pair (sub e1 v x, sub e2 v x)
+  | Fst e -> Fst (sub e v x)
+  | Snd e -> Snd (sub e v x)
 ;;
 
 (** [step] is the single-step relation, that is, a single step of
@@ -84,20 +89,21 @@ and step_bop bop e1 e2 =
 (** [eval_small e] is the multistep relation. That is, keep applying [step] until a
     value is produced. *)
 let rec eval_small (e : expr) : expr =
-  match e with
-  | Int _ | Bool _ | Fun _ -> e
-  | _ -> e |> step |> eval_small
+  if is_value e then e
+  else e |> step |> eval_small
 ;;
 
 (** [eval_big e] is the big step relation. *)
 let rec eval_big (e : expr) : expr =
   match e with
-  | Int _ | Bool _ | Fun _ -> e
+  | e' when is_value e' -> e
   | Var _ -> failwith "Unbound variable"
   | Binop (bop, e1, e2) -> eval_bop bop e1 e2
   | Let (x, e1, e2) -> sub e2 (eval_big e1) x |> eval_big
   | If (e1, e2, e3) -> eval_if e1 e2 e3
   | App (e1, e2) -> eval_app e1 e2
+  | Pair (e1, e2) -> eval_pair e1 e2
+  | Fst e' | Snd e' -> eval
 
 (** [eval_bop bop e1 e2] is the [e] such that [e1 bop e2 = e]. *)
 and eval_bop bop e1 e2 =
@@ -125,6 +131,11 @@ and eval_app e1 e2 =
     let e2' = eval_big e2 in
     sub e e2' x |> eval_big
   | _ -> failwith "Cannot apply non-function"
+
+and eval_pair e1 e2 =
+  match eval_big e1 with
+  | v1 when is_value v1 -> Pair (v1, eval_big e2)
+  | _ -> failwith "Pair element must be a value"
 ;;
 
 let interpret_small s =
