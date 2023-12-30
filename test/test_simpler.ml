@@ -84,6 +84,13 @@ let test_app =
       ~s:"(fun x -> x) (fun y -> y)"
   ]
 
+let test_pair =
+  [ test_expr "pair" ~e:(Pair (Int 1, Int 2)) ~s:"(1, 2)"
+  ; test_expr "triplet"
+      ~e:(Pair (Int 4, Pair (Int 5, Int 6)))
+      ~s:"(2 * 2, (1 + 4, 3 + 3))"
+  ] 
+
 let suite =
   "suite" >::: List.flatten
   [ test_value
@@ -98,7 +105,10 @@ let suite =
   ; test_let
   ; test_fun
   ; test_app
+  ; test_pair
   ]
 ;;
 
-let _ = run_test_tt_main suite;;
+let _ =
+  run_test_tt_main suite
+;;
