@@ -1,6 +1,6 @@
 open Ast
 
-module VarSet = Set.Make (String)
+module VarSet = Set.Make(String)
 open VarSet
 
 let parse s =
@@ -10,12 +10,14 @@ let parse s =
 ;;
 
 (** [is_value e] is whether [e] is a value. *)
-let rec is_value (e : expr) : bool =
-  match e with
-  | Int _ | Bool _ | Fun _ -> true
+let rec is_value : expr -> bool = function
+    Int _ | Bool _ | Fun _ -> true
   | Pair (e1, e2) -> is_value e1 && is_value e2
   | _ -> false
 ;;
+
+let fst (Pair (e1, e2)) = e1
+let snd (Pair (e1, e2)) = e2
 
 (** [fv e] is a set-like list of the free variables of [e]. *)
 let rec fv (e : expr) : VarSet.t =
@@ -27,7 +29,7 @@ let rec fv (e : expr) : VarSet.t =
   | If (e1, e2, e3) -> union (union (fv e1) (fv e2)) (fv e3)
   | Fun (x, e) -> diff (fv e) (singleton x)
   | App (e1, e2) | Pair (e1, e2) -> union (fv e1) (fv e2)
-  (* | Fst e | Snd e -> (fv e) *)
+  | Fst e | Snd e -> (fv e)
 ;;
 
 (** [sub e v x] is [e] with [v] substituted for [x], that is, [e{v/x}]. *)
@@ -48,52 +50,8 @@ let rec sub e v x =
     end
   | App (e1, e2) -> App (sub e1 v x, sub e2 v x)
   | Pair (e1, e2) -> Pair (sub e1 v x, sub e2 v x)
-  (* | Fst e -> Fst (sub e v x)
-  | Snd e -> Snd (sub e v x) *)
-;;
-
-(** [step] is the single-step relation, that is, a single step of
-    evaluation. *)
-let rec step (e : expr) : expr =
-  match e with
-  | Int _ | Bool _ | Fun _ -> failwith "Does not step"
-  | Var _ -> failwith "Unbound variable"
-  | Binop (bop, e1, e2) when is_value e1 && is_value e2 -> step_bop bop e1 e2
-  | Binop (bop, e1, e2) when is_value e1 -> Binop (bop, e1, step e2)
-  | Binop (bop, e1, e2) -> Binop (bop, step e1, e2)
-  | Let (x, e1, e2) when is_value e1 -> sub e2 e1 x
-  | Let (x, e1, e2) -> Let (x, step e1, e2)
-  | If (Bool true, e2, _) -> e2
-  | If (Bool false, _, e3) -> e3
-  | If (Int _, _, _) -> failwith "Guard of 'if' must have type bool"
-  | If (e1, e2, e3) -> If (step e1, e2, e3)
-  | App (Fun (x, e1), e2) when is_value e2 -> sub e1 e2 x
-  | App ((Fun _ as f), e2) -> App (f, step e2)
-  | App (e1, e2) -> App (step e1, e2)
-  | Pair (e1, e2) when is_value e1 && is_value e2 -> Pair (e1, e2)
-  | Pair (e1, e2) when is_value e1 -> Pair (e1, step e2)
-  | Pair (e1, e2) -> Pair (step e1, e2)
-
-(** [step_bop bop v1 v2] implements the primitive operation [v1 bop v2].
-    Requires: [v1] and [v2] are both values. *)
-and step_bop bop e1 e2 =
-  match bop, e1, e2 with
-  | Add, Int a, Int b -> Int (a + b)
-  | Mult, Int a, Int b -> Int (a * b)
-  | Lt, Int a, Int b -> Bool (a < b)
-  | Gt, Int a, Int b -> Bool (a > b)
-  | Eq, Int a, Int b -> Bool (a = b)
-  | Eq, Bool a, Bool b -> Bool (a = b)
-  | Leq, Int a, Int b -> Bool (a <= b)
-  | Geq, Int a, Int b -> Bool (a >= b)
-  | _ -> failwith "Operator and operand type mismatch"
-;;
-
-(** [eval_small e] is the multistep relation. That is, keep applying [step] until a
-    value is produced. *)
-let rec eval_small (e : expr) : expr =
-  if is_value e then e
-  else e |> step |> eval_small
+  | Fst e -> Fst (sub e v x)
+  | Snd e -> Snd (sub e v x)
 ;;
 
 (** [eval_big e] is the big step relation. *)
@@ -106,6 +64,7 @@ let rec eval_big (e : expr) : expr =
   | If (e1, e2, e3) -> eval_if e1 e2 e3
   | App (e1, e2) -> eval_app e1 e2
   | Pair (e1, e2) -> eval_pair e1 e2
+  | Fst e' | Snd e' as p -> eval_pairop p
 
 (** [eval_bop bop e1 e2] is the [e] such that [e1 bop e2 = e]. *)
 and eval_bop bop e1 e2 =
@@ -139,14 +98,11 @@ and eval_pair e1 e2 =
   else
     let e1' = eval_big e1 in
     Pair (e1', eval_big e2)
+
+and eval_pairop = function
+    Fst (Pair (e1, e2)) -> eval_pair e1 e2 |> fst
+  | Snd (Pair (e1, e2)) -> eval_pair e1 e2 |> snd
+  | _ -> failwith ""
 ;;
 
-let interpret_small s =
-  let e = parse s in
-  eval_small e
-;;
-
-let interpret_big s =
-  let e = parse s in
-  eval_big e
-;;
+let interpret s = parse s |> eval_big

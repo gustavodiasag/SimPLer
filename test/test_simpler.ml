@@ -1,15 +1,12 @@
 open OUnit2
 open Simpler
 
-let interpret_small = Interpreter.interpret_small
-let interpret_big = Interpreter.interpret_big
+let interpret = Interpreter.interpret
 
 open Ast
 
 let test_expr name ~e ~s =
-  name >:: (fun _ -> 
-    assert_equal ~printer:show_expr e (interpret_small s);
-    assert_equal ~printer:show_expr e (interpret_big s))
+  name >:: (fun _ -> assert_equal ~printer:show_expr e (interpret s))
 ;;  
 
 let test_value =

@@ -73,7 +73,7 @@ The process of simplifying the languages' [Abstract Syntax Tree](lib/ast.ml) dow
 
 - **Big step** semantics represent execution in terms of a big step from an expression directly to a value, abstracting away all the details of single steps.
 
-Both styles are provided by the interpreter for the purpose of choosing the one best suited for certain circumstances. The small-step semantics tend to be easier to work when it comes to modeling complicated language features, and the big-step semantics tend to be more similar to how an interpreter would actually be implemented.
+Both styles are discussed by the book, but since big-step semantics are more similar to how an interpreter would actually be implemented, the languages' evaluation strategy is based only of this model.
 
 ## Substitution
 
