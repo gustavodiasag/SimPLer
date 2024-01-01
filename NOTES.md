@@ -42,4 +42,14 @@ The answer to how to define substitution so that it evaluates correctly, without
 (fun y -> e'){e/x} = fun y -> e'{e/x} if y is not in FV(e)
 ```
 
-Where FV(e) means the **free variables** of `e`, i.e., the variables that are not bound in it. 
+Where FV(e) means the **free variables** of `e`, i.e., the variables that are not bound in it.
+
+## Type Checking (11.5)
+
+A **type system** is a mathematical description of how to determine whether an expression is *ill typed* or *well typed*, and in the latter case, what the type of the expression is. A **type checker** is a program that implements a type system, i.e., that implements the static semantics of the language.
+
+Commonly, a type system if formulated as a ternary relation `HasType(Γ, e, t)`, which means that expression `e` has type `t` in static environment `Γ`.
+
+A **static environment**, or **typing context**, is a map from identifiers to types. The static environment is used to record what variables are in scope, and what their types are.
+
+The ternary relation `HasType` is typically written with infix notation, as `Γ ⊢ e : t`. Where `⊢` can be read as "proves", i.e., the static environment `Γ` proves that `e` has type `t`.
