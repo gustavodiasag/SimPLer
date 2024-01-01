@@ -1,13 +1,6 @@
 open Ast
 
 module VarSet = Set.Make(String)
-open VarSet
-
-let parse s =
-  let lexbuf = Lexing.from_string s in
-  let ast = Parser.prog Lexer.read lexbuf in
-  ast
-;;
 
 (** [is_value e] is whether [e] is a value. *)
 let rec is_value : expr -> bool = function
@@ -18,6 +11,7 @@ let rec is_value : expr -> bool = function
 
 (** [fv e] is a set-like list of the free variables of [e]. *)
 let rec fv (e : expr) : VarSet.t =
+  let open VarSet in
   match e with
   | Bool _ | Int _ -> empty
   | Var x -> singleton x
@@ -42,7 +36,7 @@ let rec sub e v x =
   | If (e1, e2, e3) -> If (sub e1 v x, sub e2 v x, sub e3 v x)
   | Fun (y, e') as f -> begin
       if x = y then e
-      else if not (mem y (fv v)) then Fun (y, sub e' v x)
+      else if not (VarSet.mem y (fv v)) then Fun (y, sub e' v x)
       else f
     end
   | App (e1, e2) -> App (sub e1 v x, sub e2 v x)
@@ -110,6 +104,12 @@ and fst = function
 and snd = function
     Pair (_, e2) -> Some e2
   | _ -> None
+;;
+
+let parse s =
+  let lexbuf = Lexing.from_string s in
+  let ast = Parser.prog Lexer.read lexbuf in
+  ast
 ;;
 
 let interpret s =
