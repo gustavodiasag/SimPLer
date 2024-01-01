@@ -95,7 +95,12 @@ let test_pair =
   ; test_expr "triplet"
       ~e:(Pair (Int 4, Pair (Int 5, Int 6)))
       ~s:"(2 * 2, (1 + 4, 3 + 3))"
-  ] 
+  ]
+
+let test_pairop =
+  [ test_int_expr "fst" ~e:1 ~s:"fst (1 + 0, 3)"
+  ; test_int_expr "snd" ~e:5 ~s:"snd (3, let x = 3 in 5)"
+  ]
 
 let suite =
   "suite" >::: List.flatten
@@ -112,6 +117,7 @@ let suite =
   ; test_fun
   ; test_app
   ; test_pair
+  ; test_pairop
   ]
 ;;
 
