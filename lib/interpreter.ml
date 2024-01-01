@@ -16,9 +16,6 @@ let rec is_value : expr -> bool = function
   | _ -> false
 ;;
 
-let fst (Pair (e1, e2)) = e1
-let snd (Pair (e1, e2)) = e2
-
 (** [fv e] is a set-like list of the free variables of [e]. *)
 let rec fv (e : expr) : VarSet.t =
   match e with
@@ -64,7 +61,7 @@ let rec eval_big (e : expr) : expr =
   | If (e1, e2, e3) -> eval_if e1 e2 e3
   | App (e1, e2) -> eval_app e1 e2
   | Pair (e1, e2) -> eval_pair e1 e2
-  | Fst e' | Snd e' as p -> eval_pairop p
+  | Fst _ | Snd _ as p -> eval_pairop p
 
 (** [eval_bop bop e1 e2] is the [e] such that [e1 bop e2 = e]. *)
 and eval_bop bop e1 e2 =
@@ -100,9 +97,21 @@ and eval_pair e1 e2 =
     Pair (e1', eval_big e2)
 
 and eval_pairop = function
-    Fst (Pair (e1, e2)) -> eval_pair e1 e2 |> fst
-  | Snd (Pair (e1, e2)) -> eval_pair e1 e2 |> snd
-  | _ -> failwith ""
+  | Fst (Pair (e1, e2)) ->
+      eval_pair e1 e2 |> fst |> Option.get
+  | Snd (Pair (e1, e2)) ->
+      eval_pair e1 e2 |> snd |> Option.get
+  | _ -> failwith "Invalid pair operation"
+
+and fst = function
+    Pair (e1, _) -> Some e1
+  | _ -> None
+
+and snd = function
+    Pair (_, e2) -> Some e2
+  | _ -> None
 ;;
 
-let interpret s = parse s |> eval_big
+let interpret s =
+  s |> parse |> eval_big
+;;
