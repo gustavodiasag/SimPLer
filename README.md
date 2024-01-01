@@ -2,7 +2,7 @@
 
 Implementation of an interpreter for the SimPL and Core OCaml programming languages as the final exercise from the book [OCaml Programming: Correct + Efficient + Beautiful](https://cs3110.github.io/textbook/ocaml_programming.pdf). 
 
-Although these toy languages are just basic calculators in some way (given that only expressions are supported), a whole lot of ideas present in [lambda calculus theory](https://plato.stanford.edu/entries/lambda-calculus/) are provided by them, such as substitution and partial application. Besides that, the languages are defined with syntactic and semantic rules very similar to those of OCaml, with features such as tuples, variants, pattern matching and lack of mutability/side effects.
+Although these toy languages are just basic calculators in some way (given that only expressions are supported), some ideas present in [lambda calculus theory](https://plato.stanford.edu/entries/lambda-calculus/) are provided by them, such as substitution and anonymous functions. Besides that, the languages are defined with syntactic and semantic rules very similar to those of OCaml.
 
 Important excerpts from the book regarding the theoretical and mathematical aspects of the project are separately described in a [notes section](NOTES.md).
 
@@ -43,8 +43,6 @@ e ::= x
     | (e1, e2)
     | fst e 
     | snd e
-    | Left e | Right e
-    | match e with Left x1 -> e1 | Right x2 -> e2
     | if e1 then e2 else e3
     | let x = e1 in e2
 
@@ -56,7 +54,7 @@ i ::= <integer>
 
 b ::= true | false
 
-v ::= fun x -> e | i | b | (v1, v2) | Left v | Right v
+v ::= fun x -> e | i | b | (v1, v2)
 ```
 
 ## Lexing and Parsing
@@ -73,7 +71,7 @@ The process of simplifying the languages' [Abstract Syntax Tree](lib/ast.ml) dow
 
 - **Big step** semantics represent execution in terms of a big step from an expression directly to a value, abstracting away all the details of single steps.
 
-Both styles are discussed by the book, but since big-step semantics are more similar to how an interpreter would actually be implemented, the languages' evaluation strategy is based only of this model.
+Both styles are discussed by the book, but since big-step semantics are more similar to how an interpreter would actually be implemented, the languages' evaluation strategy is based only on this model.
 
 ## Substitution
 
@@ -141,33 +139,7 @@ Fundamentally the same as for "let" expressions.
 (fst e){v/x} = fst (e{v/x})
 
 (snd e){v/x} = snd (e{v/x})
-
-(Left e){v/x} = Left (e{v/x})
-
-(Right e){v/x} = Right (e{v/x})
 ```
-
-### Match expressions
-
-There is also the need to ensure capture-avoidance.
-
-```
-(match e with Left x1 -> e1 | Right x2 -> e2){v/x}
-= match e{v/x} with Left x1 -> e1{v/x} | Right x2 -> e2{v/x}
-    if ({x1,x2} intersect FV(v)) = {}
-
-(match e with Left x -> e1 | Right x2 -> e2){v/x}
-= match e{v/x} with Left x -> e1 | Right x2 -> e2{v/x}
-    if ({x2} intersect FV(v)) = {}
-
-(match e with Left x1 -> e1 | Right x -> e2){v/x}
-= match e{v/x} with Left x1 -> e1{v/x} | Right x -> e2
-    if ({x1} intersect FV(v)) = {}
-
-(match e with Left x -> e1 | Right x -> e2){v/x}
-= match e{v/x} with Left x -> e1 | Right x -> e2
-```
-
 
 # License
 
