@@ -10,13 +10,13 @@ homepage: "https://github.com/username/reponame"
 doc: "https://url/to/documentation"
 bug-reports: "https://github.com/username/reponame/issues"
 depends: [
-  "ocaml"
+  "ocaml" {>= "5.0"}
   "dune" {>= "3.12"}
   "core"
   "core_unix"
   "ppx_deriving"
   "ppx_jane"
-  "ounit2"
+  "ounit2" {with-test}
   "odoc" {with-doc}
 ]
 build: [

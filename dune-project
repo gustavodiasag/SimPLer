@@ -1,4 +1,5 @@
 (lang dune 3.12)
+
 (using menhir 2.1)
 
 (name simpler)
@@ -20,7 +21,14 @@
  (name simpler)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml dune core core_unix ppx_deriving ppx_jane ounit2)
+ (depends
+  (ocaml (>= 5.0))
+  dune
+  core
+  core_unix
+  ppx_deriving
+  ppx_jane
+  (ounit2 :with-test))
  (tags
   (topics "to describe" your project)))
 
