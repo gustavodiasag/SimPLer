@@ -36,9 +36,12 @@ let rec make_apply e = function
 %nonassoc IN
 %nonassoc ELSE
 %left LT
+%left GT
 %left EQ
 %left PLUS
 %left TIMES
+%left FST
+%left SND
 
 %start <Ast.expr> prog
 
