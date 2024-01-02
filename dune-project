@@ -25,6 +25,7 @@
   (ocaml (>= 5.0))
   dune
   core
+  menhir
   core_unix
   ppx_deriving
   ppx_jane

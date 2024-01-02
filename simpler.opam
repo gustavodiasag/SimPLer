@@ -13,6 +13,7 @@ depends: [
   "ocaml" {>= "5.0"}
   "dune" {>= "3.12"}
   "core"
+  "menhir"
   "core_unix"
   "ppx_deriving"
   "ppx_jane"
