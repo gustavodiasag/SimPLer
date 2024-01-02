@@ -1,0 +1,5 @@
+let square =
+  let y = (fun x -> x * x) in y
+  in
+  square 7
+;;
