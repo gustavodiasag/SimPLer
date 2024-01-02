@@ -20,7 +20,7 @@
  (name simpler)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml dune)
+ (depends ocaml dune core core_unix ppx_deriving ppx_jane ounit2)
  (tags
   (topics "to describe" your project)))
 
