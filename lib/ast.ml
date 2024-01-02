@@ -1,3 +1,13 @@
+type binop =
+  | Add
+  | Mult
+  | Lt
+  | Gt
+  | Eq
+  | Geq
+  | Leq
+[@@deriving show, eq]
+
 type expr =
   | Var of string
   | Int of int
@@ -10,13 +20,4 @@ type expr =
   | Pair of expr * expr
   | Fst of expr
   | Snd of expr
-
-and binop =
-  | Add
-  | Mult
-  | Lt
-  | Gt
-  | Eq
-  | Geq
-  | Leq
 [@@deriving show, eq]
