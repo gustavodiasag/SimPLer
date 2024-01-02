@@ -1,4 +1,5 @@
 (executable
  (public_name simpler)
- (name main)
- (libraries simpler))
+ (name simpler)
+ (libraries simpler core core_unix.command_unix)
+ (preprocess (pps ppx_jane)))
