@@ -131,7 +131,7 @@ Fundamentally the same as for "let" expressions.
     if y not in FV(v)
 ```
 
-### Tuples and Variants
+### Tuples
 
 ```
 (e1, e2){v/x} = (e1{v/x}, e2{v/x})
