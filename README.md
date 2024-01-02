@@ -1,6 +1,6 @@
 # SimPLer
 
-[![OCaml-CI Build Status](https://img.shields.io/endpoint?url=https://ocaml.ci.dev/badge/gustavodiasag/SimPLer/main&logo=ocaml)](https://ocaml.ci.dev/github/gustavodiasag/SimPLer)
+[![SimPLer](https://github.com/gustavodiasag/SimPLer/actions/workflows/test.yml/badge.svg)](https://github.com/gustavodiasag/SimPLer/actions/workflows/test.yml)
 
 Implementation of an interpreter for the SimPL and Core OCaml programming languages as the final exercise from the book [OCaml Programming: Correct + Efficient + Beautiful](https://cs3110.github.io/textbook/ocaml_programming.pdf). 
 
