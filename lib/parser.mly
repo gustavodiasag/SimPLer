@@ -53,7 +53,7 @@ prog:
 
 expr:
   | e = simpl_expr { e }
-  | e = simpl_expr; es = simpl_expr+ { make_apply e es }
+  | e = simpl_expr; es = expr+ { make_apply e es }
   | i = INT { Int i }
   | TRUE { Bool true }
   | FALSE { Bool false }
